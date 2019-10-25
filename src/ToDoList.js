@@ -22,7 +22,7 @@ class TodoList extends Component {
     var listItems = todoEntries.map(this.createTasks);
     return(
     <Card className = "fullList">
-    {listItems}
+      {listItems}
     </Card>
     )
   }
