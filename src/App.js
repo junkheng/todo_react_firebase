@@ -8,7 +8,8 @@ import Button from '@material-ui/core/Button';
 
 firebase.initializeApp({
   apiKey: "AIzaSyAmxYt9XJuNbhLhvkHSJ45ocEIHtHeV6-I",
-  authDomain: "todo-react-firebase-89b60.firebaseapp.com"
+  authDomain: "todo-react-firebase-89b60.firebaseapp.com",
+  projectId: "todo-react-firebase-89b60",
 })
 
 class App extends Component {
