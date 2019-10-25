@@ -1,62 +1,117 @@
 import React, { Component } from 'react';
-import ToDoList from './ToDoList'
 import Button from '@material-ui/core/Button';
-
-const style = {
-  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-};
+import './App.css';
+import firebase from "firebase"
 
 class Todo extends Component {
-
   constructor(props) {
     super(props);
+    this.ref = firebase.firestore().collection('todos');
+    this.unsubscribe = null;
     this.state = {
-      items: []
-    }
-    this.addTodo = this.addTodo.bind(this)
-    this.deleteTodo = this.deleteTodo.bind(this)
-  }
-  addTodo(x) {
-    if (this._inputElement.value !== "") {
-      var newItem = {
-        text: this._inputElement.value,
-        key: Date.now()
-      };
-      this.setState((prevState) => {
-        return {
-          items: prevState.items.concat(newItem)
-        };
-      });
-      this._inputElement.value = "";
-    }
-    x.preventDefault();
+      todos: [],
+      item: '',
+      key: '',
+      todo: {},
+    };
   }
 
-  deleteTodo(key) {
-    var remainingItems = this.state.items.filter(function (item) {
-      return (item.key !== key)
-    })
+  onCollectionUpdate = (querySnapshot) => {
+    const todos = [];
+    querySnapshot.forEach((doc) => {
+      const { item } = doc.data();
+      todos.push({
+        key: doc.id,
+        doc, 
+        item,
+      });
+    });
     this.setState({
-      items: remainingItems
+      todos
+   });
+  }
+
+  componentDidMount() {
+    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
+    // const ref = firebase.firestore().collection('todos').doc(this.props.match.params.id);
+    // ref.get().then((doc) => {
+    //   if (doc.exists) {
+    //     this.setState({
+    //       todo: doc.data(),
+    //       key: doc.id,
+    //       isLoading: false
+    //     });
+    //   } else {
+    //     console.log("No such document!");
+    //   }
+    // });
+  }
+
+  onChange = (e) => {
+    const state = this.state
+    state[e.target.name] = e.target.value;
+    this.setState(state);
+  }
+
+  onSubmit = (e) => {
+    e.preventDefault();
+
+    const { item } = this.state;
+
+    this.ref.add({
+      item,
+    }).then((docRef) => {
+      this.setState({
+        item: '',
+      });
     })
+    .catch((error) => {
+      console.error("Error adding document: ", error);
+    });
+  }
+
+  delete(id){
+    firebase.firestore().collection('todos').doc(id).delete().then(() => {
+      console.log(this.state.todos);
+    }).catch((error) => {
+      console.error("Error removing document: ", error);
+    });
   }
 
   render() {
+    const { item } = this.state;
     return (
-      <div className="todoList">
-        <h1>To Do List</h1>
-        <div>
-          <form className="todoForm" onSubmit={this.addTodo}>
-            <input className="inputTodo" ref={(a) => this._inputElement = a}
-              placeholder="Before I forget..">
-            </input>
-            <Button style={style} type="submit" variant="contained" color="primary">Remind Me</Button>
-          </form>
-          <ToDoList entries={this.state.items}
-            delete={this.deleteTodo} />
+      <div className="container">
+        <div className="panel panel-default">
+          <div className="panel-body">
+            <h4>Add a To Do Item</h4>
+            <form onSubmit={this.onSubmit}>
+              <div className="form-group">
+                <label for="item">Item:</label>
+                <input type="text" className="form-control" name="item" value={item} onChange={this.onChange} placeholder="Item" />
+              </div>
+              <button type="submit" className="btn btn-success">Submit</button>
+            </form>
+          </div>
+        </div>
+        <div className="panel-body">
+          <table className="table table-stripe">
+            <thead>
+              <tr>
+                <th>To Do List</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.todos.map(todo =>
+                <tr>
+                  <td>{todo.item}<Button onClick={this.delete.bind(this, this.state.key)}>Delete</Button></td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-    )
+    );
   }
 }
 
