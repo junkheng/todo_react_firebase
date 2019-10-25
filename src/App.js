@@ -1,63 +1,58 @@
-import React, { Component } from 'react';
-import ToDoList from './ToDoList'
+import React, { Component } from "react"
+import "./App.css"
+import firebase from "firebase"
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
+import Todo from "./ToDo"
 import Button from '@material-ui/core/Button';
 
-const style = {
-  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-};
 
-class Todo extends Component {
+firebase.initializeApp({
+  apiKey: "AIzaSyAmxYt9XJuNbhLhvkHSJ45ocEIHtHeV6-I",
+  authDomain: "todo-react-firebase-89b60.firebaseapp.com"
+})
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      items: []
+class App extends Component {
+  state = { isSignedIn: false }
+  uiConfig = {
+    signInFlow: "popup",
+    signInOptions: [
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+    ],
+    callbacks: {
+      signInSuccess: () => false
     }
-    this.addTodo = this.addTodo.bind(this)
-    this.deleteTodo = this.deleteTodo.bind(this)
-  }
-  addTodo(x) {
-    if (this._inputElement.value !== "") {
-      var newItem = {
-        text: this._inputElement.value,
-        key: Date.now()
-      };
-      this.setState((prevState) => {
-        return {
-          items: prevState.items.concat(newItem)
-        };
-      });
-      this._inputElement.value = "";
-    }
-    x.preventDefault();
   }
 
-  deleteTodo(key) {
-    var remainingItems = this.state.items.filter(function (item) {
-      return (item.key !== key)
-    })
-    this.setState({
-      items: remainingItems
+  componentDidMount = () => {
+    firebase.auth().onAuthStateChanged(user => {
+      this.setState({ isSignedIn: !!user })
+      console.log("user", user)
     })
   }
 
   render() {
     return (
-      <div className="todoList">
-        <h1>To Do List</h1>
-        <div>
-          <form className="todoForm" onSubmit={this.addTodo}>
-            <input className="inputTodo" ref={(a) => this._inputElement = a}
-              placeholder="Before I forget..">
-            </input>
-            <Button style={style} type="submit" variant="contained" color="primary">Remind Me</Button>
-          </form>
-          <ToDoList entries={this.state.items}
-            delete={this.deleteTodo} />
-        </div>
+      <div className="App">
+        {this.state.isSignedIn ? (
+          <span>
+            <h1>Welcome {firebase.auth().currentUser.displayName}</h1>
+            <img
+              alt="profile picture"
+              src={firebase.auth().currentUser.photoURL}
+            />
+            <Todo />
+            <Button onClick={() => firebase.auth().signOut()}>Sign out!</Button>
+          </span>
+        ) : (
+          <StyledFirebaseAuth
+            uiConfig={this.uiConfig}
+            firebaseAuth={firebase.auth()}
+          />
+        )}
       </div>
     )
   }
 }
 
-export default Todo
+export default App
