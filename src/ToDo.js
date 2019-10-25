@@ -71,8 +71,8 @@ class Todo extends Component {
   }
 
   delete(id){
-    firebase.firestore().collection('todos').doc(id).delete().then(() => {
-      console.log(this.state.todos);
+    firebase.firestore().collection('todos').doc().delete().then(() => {
+      console.log("Document successfully deleted!");
     }).catch((error) => {
       console.error("Error removing document: ", error);
     });
