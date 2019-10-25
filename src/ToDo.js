@@ -12,6 +12,7 @@ class Todo extends Component {
       todos: [],
       item: '',
       key: '',
+      todo: {},
     };
   }
 
@@ -32,6 +33,18 @@ class Todo extends Component {
 
   componentDidMount() {
     this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
+    // const ref = firebase.firestore().collection('todos').doc(this.props.match.params.id);
+    // ref.get().then((doc) => {
+    //   if (doc.exists) {
+    //     this.setState({
+    //       todo: doc.data(),
+    //       key: doc.id,
+    //       isLoading: false
+    //     });
+    //   } else {
+    //     console.log("No such document!");
+    //   }
+    // });
   }
 
   onChange = (e) => {
@@ -59,7 +72,7 @@ class Todo extends Component {
 
   delete(id){
     firebase.firestore().collection('todos').doc(id).delete().then(() => {
-      console.log("Document successfully deleted!");
+      console.log(this.state.todos);
     }).catch((error) => {
       console.error("Error removing document: ", error);
     });
@@ -91,7 +104,7 @@ class Todo extends Component {
             <tbody>
               {this.state.todos.map(todo =>
                 <tr>
-                  <td>{todo.item}<Button onClick={this.delete.bind(this, this.state.key)} class="btn btn-danger">Delete</Button></td>
+                  <td>{todo.item}<Button onClick={this.delete.bind(this, this.state.key)}>Delete</Button></td>
                 </tr>
               )}
             </tbody>
