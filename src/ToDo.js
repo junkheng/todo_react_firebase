@@ -7,12 +7,12 @@ class Todo extends Component {
   constructor(props) {
     super(props);
     this.ref = firebase.firestore().collection('todos');
+    this.refitem = firebase.firestore().collection('todos').doc();
     this.unsubscribe = null;
     this.state = {
       todos: [],
       item: '',
       key: '',
-      todo: {},
     };
   }
 
@@ -33,11 +33,11 @@ class Todo extends Component {
 
   componentDidMount() {
     this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
-    // const ref = firebase.firestore().collection('todos').doc(this.props.match.params.id);
+    // const ref = firebase.firestore().collection('todos').doc(this.props.match.id);
     // ref.get().then((doc) => {
     //   if (doc.exists) {
     //     this.setState({
-    //       todo: doc.data(),
+    //       todos: doc.data(),
     //       key: doc.id,
     //       isLoading: false
     //     });
@@ -71,7 +71,8 @@ class Todo extends Component {
   }
 
   delete(id){
-    firebase.firestore().collection('todos').doc().delete().then(() => {
+    // debugger
+    firebase.firestore().collection('todos').doc(id).delete().then(() => {      
       console.log("Document successfully deleted!");
     }).catch((error) => {
       console.error("Error removing document: ", error);
@@ -80,6 +81,7 @@ class Todo extends Component {
 
   render() {
     const { item } = this.state;
+
     return (
       <div className="container">
         <div className="panel panel-default">
@@ -104,7 +106,7 @@ class Todo extends Component {
             <tbody>
               {this.state.todos.map(todo =>
                 <tr>
-                  <td>{todo.item}<Button onClick={this.delete.bind(this, this.state.key)}>Delete</Button></td>
+                  <td>{todo.item}<Button onClick={this.delete.bind(this, todo.key)}>Delete</Button></td>
                 </tr>
               )}
             </tbody>
