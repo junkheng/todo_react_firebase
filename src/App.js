@@ -41,6 +41,8 @@ class App extends Component {
             <img
               alt="profile picture"
               src={firebase.auth().currentUser.photoURL}
+              width="120px"
+              height="auto"
             />
             <Todo />
             <Button onClick={() => firebase.auth().signOut()}>Sign out!</Button>

@@ -12,7 +12,7 @@ class Todo extends Component {
     this.state = {
       todos: [],
       item: '',
-      key: '',
+      key: Math.random(), // temp solution for sample app. production level should not use this
     };
   }
 
@@ -97,20 +97,10 @@ class Todo extends Component {
           </div>
         </div>
         <div className="panel-body">
-          <table className="table table-stripe">
-            <thead>
-              <tr>
-                <th>To Do List</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.todos.map(todo =>
-                <tr>
-                  <td>{todo.item}<Button onClick={this.delete.bind(this, todo.key)}>Delete</Button></td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <h2>To Do List</h2>
+            {this.state.todos.map(todo =>
+              <p>{todo.item}<Button onClick={this.delete.bind(this, todo.key)}>Delete</Button></p>
+            )}
         </div>
       </div>
     );
